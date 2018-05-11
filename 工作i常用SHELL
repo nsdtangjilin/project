@@ -63,7 +63,6 @@ users=`who | wc -l`
 echo "当前登陆数量为:"$users
 rpm=`rpm -qa | wc -l`
 echo "当前已安装软件包数量为:"$rpm
-4.编写安全检测脚本
 
 
 5.编写进度显示脚本

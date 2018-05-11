@@ -1,0 +1,83 @@
+1.一键部署Nginx软件脚本
+#!/bin/bash
+n=`yum  repolist | awk '/repolist/{print $2}' | sed 's/,//'`
+if [ $n -le 0 ];then
+ echo "yum 不可用"
+ exit
+fi
+yum -y install gcc openssl-devel pcre-devel
+tar -xf /root/nginx-1.10.3.tar.gz
+cd /root/nginx-1.10.3
+./configure
+make
+make install
+/usr/local/nginx/sbin/nginx   //启动服务
+/usr/local/nginx/sbin/nginx    -s stop  //关闭服务
+/usr/local/nginx/sbin/nginx    -V  //查看软件信息
+2.启动Nginx的脚本
+#!/bin/bash
+case $1 in
+start)
+ /usr/local/nginx/sbin/nginx;;
+stop)
+ /usr/local/nginx/sbin/nginx -s stop;;
+restart)
+ /usr/local/nginx/sbin/nginx -s stop
+ /usr/local/nginx/sbin/nginx;;
+status)
+ netstat -ntulp | grep nginx  #查看每个端口所对应的服务,看是否nginx是否有
+ if [ $? -eq 0 ];then
+ echo "服务已启动"
+else
+ echo "服务未启动"  
+fi;;
+*)
+ echo Error;;
+esac
+
+3.编写监控脚本
+uptime    //查看CPU负载
+ifconfig eth0  //查看网卡流量
+free  //查看内存信息
+df -h  //查看磁盘空间
+wc -l /etc/passwd  //查看计算机账户数量
+who | wc -l //查看登陆账户数量
+rpm -qa | wc -l  //查看已安装的软件包数量
+##########################################
+#!/bin/bash
+ip=`ifconfig eth0 | awk '/inet /{print $2}'`
+echo "本地IP地址是:"$ip
+cpu=`uptime | awk '{print $10}'`
+echo "本机cpu最近15分钟的负载是:"$cpu
+rx=`ifconfig eth0 | awk '/RX p/{print $5}'`
+echo "本机网卡接收流量为:"$rx
+tx=`ifconfig eth0 | awk '/TX p/{print $5}'`
+echo "本机网卡发送流量为:"$tx
+free=`free | awk '/Mem:/{print $4}'`
+echo "本机剩余内存为:"$free
+cipan=`df | awk '/\/$/{print $4}'`
+echo "本机根分区剩余空间为:"$cipan
+user=`wc -l /etc/passwd | awk '{print $1}'`
+echo "本机所有账户数量为:"$user
+users=`who | wc -l`
+echo "当前登陆数量为:"$users
+rpm=`rpm -qa | wc -l`
+echo "当前已安装软件包数量为:"$rpm
+4.编写安全检测脚本
+
+
+5.编写进度显示脚本
+#!/bin/bash
+jindu(){
+while :
+do
+ echo -ne '\033[43m \033[0m'
+ sleep 0.2
+done
+}
+jindu &
+cp -r $1 $2
+kill $!
+
+
+
